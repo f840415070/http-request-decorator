@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { Method  } from 'axios';
 import { HttpMethodDecoratorFactory } from './DecoratorCore';
 import {
   PARAMS_INDEX,
@@ -16,8 +15,12 @@ export function Post(url: string) {
   return HttpMethodDecoratorFactory('POST', url);
 }
 
-export function MethodFor(method: Method, url: string) {
-  return HttpMethodDecoratorFactory(method, url);
+export function Put(url: string) {
+  return HttpMethodDecoratorFactory('PUT', url);
+}
+
+export function Delete(url: string) {
+  return HttpMethodDecoratorFactory('DELETE', url);
 }
 
 export function Params(target: Object, propertyKey: string | symbol, parameterIndex: number) {
