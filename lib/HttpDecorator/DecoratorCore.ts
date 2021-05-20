@@ -78,5 +78,3 @@ export const createMethodDecorator = (method: Method) => {
     return HttpMethodDecoratorFactory(method, url);
   };
 };
-
-export type HttpMethod = Method;

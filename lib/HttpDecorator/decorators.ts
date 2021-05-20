@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { HttpMethodDecoratorFactory, HttpMethod } from './DecoratorCore';
+import { Method  } from 'axios';
+import { HttpMethodDecoratorFactory } from './DecoratorCore';
 import {
   PARAMS_INDEX,
   RESPONSE_INDEX,
@@ -15,7 +16,7 @@ export function Post(url: string) {
   return HttpMethodDecoratorFactory('POST', url);
 }
 
-export function Method(method: HttpMethod, url: string) {
+export function MethodFor(method: Method, url: string) {
   return HttpMethodDecoratorFactory(method, url);
 }
 
