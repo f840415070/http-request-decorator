@@ -7,8 +7,6 @@ import {
   Response,
   setRequestConfig,
   Err,
-  Header,
-  Params,
 } from '../lib';
 
 const template = {
@@ -17,21 +15,17 @@ const template = {
   data: { list: ['front end', 'back end'] },
 };
 
-['get', 'post', 'put', 'delete'].forEach((method) => {
-  Mock.mock(`https://mock.api.com/${method}/list`, method, template);
-});
-
-Mock.mock('https://mock.api.com/get/headers', (options: Record<string, any>) => {
-  console.log(options);
-  return {};
-});
+Mock.mock('https://mock.api.com/get/list', 'get', template);
+Mock.mock('https://mock.api.com/post/list', 'post', template);
+Mock.mock('https://mock.api.com/put/list', 'put', template);
+Mock.mock('https://mock.api.com/delete/list', 'delete', template);
 
 setRequestConfig({ baseURL: 'https://mock.api.com' });
 
 class Request {
   @Get('/get/list')
-  fetchList(@Response res?: Record<string, any>) {
-    return res;
+  fetchList(@Response res?: Record<string, any>, @Err err?: Error) {
+    return [res, err];
   }
 
   @Post('/post/list')
@@ -53,20 +47,15 @@ class Request {
   fetchError(@Err err?: Error, @Response res?: unknown) {
     return [err, res];
   }
-
-  @Get('/get/headers')
-  @Header({ platform: 10 })
-  fetchHeaders(@Params params: unknown, @Err err?: Error) {
-    return err;
-  }
 }
 
 const request = new Request();
 
 describe('test decorators', () => {
   it('test Get decorator', async () => {
-    const res: Record<string, any> | undefined = await request.fetchList();
+    const [res, err] = await request.fetchList();
     expect(res).toBeDefined();
+    expect(err).toBeUndefined();
     expect(res?.errcode).toBe(0);
     expect(res?.data.list).toContain('back end');
   });
@@ -90,11 +79,6 @@ describe('test decorators', () => {
     expect(res).toBeDefined();
     expect(res?.errcode).toBe(0);
     expect(res?.data.list).toContain('back end');
-  });
-
-  it('test Header decorator', async () => {
-    const err = await request.fetchHeaders({ foo: 123 });
-    console.log(err);
   });
 
   // passed test
