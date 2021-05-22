@@ -137,5 +137,6 @@ module.exports = {
     'react/jsx-filename-extension': 'off',
     'func-names': 'off',
     'no-param-reassign': 'off',
+    'no-redeclare': 'off',
   },
 };
