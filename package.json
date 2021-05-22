@@ -1,24 +1,37 @@
 {
-  "name": "http-request-caps",
+  "name": "http-request-decorator",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "基于 axios 和 ES Decorator ，用更优雅的 AOP 方式实现异步网络请求",
+  "main": "./dist/index.js",
   "directories": {
     "lib": "lib"
   },
+  "keywords": [
+    "decorators",
+    "axios",
+    "http-request",
+    "es-decorators",
+    "http-request-decorator"
+  ],
+  "files": [
+    "dist",
+    "types"
+  ],
+  "types": "./types/index.d.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/f840415070/http-request-caps.git"
+    "url": "git+https://github.com/f840415070/http-request-decorator.git"
   },
   "author": "fanyibin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/f840415070/http-request-caps/issues"
+    "url": "https://github.com/f840415070/http-request-decorator/issues"
   },
-  "homepage": "https://github.com/f840415070/http-request-caps#readme",
+  "homepage": "https://github.com/f840415070/http-request-decorator#readme",
   "dependencies": {
     "axios": "^0.21.1",
     "reflect-metadata": "^0.1.13"
