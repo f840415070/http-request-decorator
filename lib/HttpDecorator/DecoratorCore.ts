@@ -86,6 +86,18 @@ export function HttpMethodDecoratorFactory(method: Method, url: string) {
   };
 }
 
+/**
+ * 自定义请求方法装饰器
+ * @param method 请求方法 |'get'|'post'|...|
+ * @returns 方法装饰器
+ * @example
+ * ```
+ * >|const Patch = createMethodDecorator('PATCH');
+ * >|
+ * >|@Patch('/foo/bar')
+ * >|fetch() {}
+ * ```
+ */
 export const createMethodDecorator = (method: Method) => {
   return function (url: string) {
     return HttpMethodDecoratorFactory(method, url);
