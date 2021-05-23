@@ -1,6 +1,6 @@
 {
   "name": "http-request-decorator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "基于 axios 和 ES Decorator ，用更优雅的 AOP 方式实现异步网络请求",
   "main": "./dist/index.js",
   "directories": {
