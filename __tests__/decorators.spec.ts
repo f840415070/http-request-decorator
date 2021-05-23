@@ -6,7 +6,7 @@ import {
   Delete,
   Response,
   setRequestConfig,
-  Err,
+  Exception,
   Params,
   createMethodDecorator,
 } from '../lib';
@@ -32,7 +32,7 @@ setRequestConfig({ baseURL: 'https://mock.api.com' });
 
 class Request {
   @Get('/get/list')
-  fetchList(@Response res?: o, @Err err?: Error) {
+  fetchList(@Response res?: o, @Exception err?: Error) {
     return [res, err];
   }
 
@@ -57,7 +57,7 @@ class Request {
   }
 
   @Get('/error/api')
-  fetchError(@Err err?: Error, @Response res?: unknown) {
+  fetchError(@Exception err?: Error, @Response res?: unknown) {
     return [err, res];
   }
 
@@ -126,7 +126,7 @@ describe('test decorators', () => {
   });
 
   // passed test
-  // it('test Err decorator', async () => {
+  // it('test Exception decorator', async () => {
   //   const [err, res] = await request.fetchError();
   //   console.log(err);
   //   expect(err instanceof Error).toBeTruthy();
