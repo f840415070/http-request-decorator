@@ -167,6 +167,15 @@ setRequestConfig({
 });
 ```
 
+- `interceptors` <br>
+`axios` 的拦截器
+```ts
+interceptors.request.use((config) => {
+  config.headers.Authorization = 'hello world';
+  return config;
+});
+```
+
 - `Method` <br>
 ```ts
 type Method =
