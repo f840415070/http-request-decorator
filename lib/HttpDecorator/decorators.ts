@@ -1,9 +1,12 @@
 import 'reflect-metadata';
+import { AxiosRequestConfig } from 'axios';
 import { HttpMethodDecoratorFactory } from './DecoratorCore';
 import {
   HEADER,
   PARAMS,
+  CONFIG,
   PARAMS_INDEX,
+  CONFIG_INDEX,
   RESPONSE_INDEX,
   ERROR_INDEX,
 } from './MetaSymbols';
@@ -136,4 +139,20 @@ export function Response(target: Object, propertyKey: string | symbol, parameter
  */
 export function Exception(target: Object, propertyKey: string | symbol, parameterIndex: number) {
   Reflect.defineMetadata(ERROR_INDEX, parameterIndex, target, propertyKey);
+}
+
+export function Config(config: AxiosRequestConfig): (target: Object, propertyKey: string | symbol) => void
+export function Config(target: Object, propertyKey: string | symbol, parameterIndex: number): void
+export function Config(...args: any[]) {
+  if (args.length === 1) {
+    const [config] = args;
+    return function (target: Object, propertyKey: string | symbol) {
+      Reflect.defineMetadata(CONFIG, config, target, propertyKey);
+    };
+  } else if (args.length === 3) {
+    const [target, propertyKey, parameterIndex] = args;
+    Reflect.defineMetadata(CONFIG_INDEX, parameterIndex, target, propertyKey);
+  } else {
+    throw new Error('@Config Invalid arguments');
+  }
 }
