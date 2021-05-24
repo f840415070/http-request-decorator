@@ -1,4 +1,4 @@
 export * from './HttpDecorator/decorators';
-export { createMethodDecorator } from './HttpDecorator/DecoratorCore';
+export { createMethodDecorator, interceptors } from './HttpDecorator/DecoratorCore';
 export { setRequestConfig } from './HttpDecorator/RequestConfig';
 export { AxiosRequestConfig, Method, AxiosResponse } from 'axios';

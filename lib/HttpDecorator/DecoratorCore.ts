@@ -72,7 +72,7 @@ export function HttpMethodDecoratorFactory(method: Method, url: string) {
       try {
         const response = await axios(requestConfig);
         if (hasValidParamIndex(responseIndex)) {
-          args[responseIndex] = response.data;
+          args[responseIndex] = response;
         }
       } catch (e: unknown) {
         // 错误捕获给 @Err 参数
@@ -103,3 +103,5 @@ export const createMethodDecorator = (method: Method) => {
     return HttpMethodDecoratorFactory(method, url);
   };
 };
+
+export const { interceptors } = axios;
