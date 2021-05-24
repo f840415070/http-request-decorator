@@ -16,6 +16,7 @@ import {
   Params,
   Header,
   setRequestConfig,
+  AxiosResponse,
 } from 'http-request-decorator';
 
 setRequestConfig({
@@ -27,7 +28,7 @@ class MyApp {
   @Get('/detail/get')
   @Header({ 'Authorization': 'Bearer foobar' })
   @Params({ defaultParam: 123 })
-  fetch(@Params params: Record<string, any>, @Response res?: Record<string, any>) {
+  fetch(@Params params: Record<string, any>, @Response res?: AxiosResponse) {
     console.log('Response', res);
   }
 
@@ -54,7 +55,7 @@ class MyApp {
 @Get('/foo/bar')
 fetch(
   @Params params: Record<string, any>,
-  @Response res?: Record<string, any>,
+  @Response res?: AxiosResponse,
   @Exception err?: Error,
   ) {
     if (!err && res) {
@@ -124,7 +125,7 @@ class MyApp {
 ```ts
 class MyApp {
   @Get('/foo/bar')
-  fetch(@Response res?: unknown) {
+  fetch(@Response res?: AxiosResponse) {
     console.log('The response:', res);
   }
 }
@@ -135,7 +136,7 @@ class MyApp {
 ```ts
 class MyApp {
   @Get('/foo/bar')
-  fetch(@Response res?: unknown, @Exception err?: Error) {
+  fetch(@Response res?: AxiosResponse, @Exception err?: Error) {
     if (!err && res) {
       console.log('The response:', res);
     }
@@ -213,5 +214,17 @@ interface AxiosRequestConfig {
   proxy?: AxiosProxyConfig | false;
   cancelToken?: CancelToken;
   decompress?: boolean;
+}
+```
+
+- `AxiosResponse`
+```ts
+interface AxiosResponse<T = any>  {
+  data: T;
+  status: number;
+  statusText: string;
+  headers: any;
+  config: AxiosRequestConfig;
+  request?: any;
 }
 ```
