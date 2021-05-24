@@ -9,6 +9,7 @@ import {
   Exception,
   Params,
   createMethodDecorator,
+  AxiosResponse,
 } from '../lib';
 
 type o = Record<string, any>;
@@ -32,44 +33,44 @@ setRequestConfig({ baseURL: 'https://mock.api.com' });
 
 class Request {
   @Get('/get/list')
-  fetchList(@Response res?: o, @Exception err?: Error) {
-    return [res, err];
+  fetchList(@Response res?: AxiosResponse, @Exception err?: Error) {
+    return res;
   }
 
   @Post('/post/list')
-  postList(@Response res?: o) {
+  postList(@Response res?: AxiosResponse) {
     return res;
   }
 
   @Put('/put/list')
-  putList(@Response res?: o) {
+  putList(@Response res?: AxiosResponse) {
     return res;
   }
 
   @Delete('/delete/list')
-  deleteList(@Response res?: o) {
+  deleteList(@Response res?: AxiosResponse) {
     return res;
   }
 
   @Patch('/patch/list')
-  patchList(@Response res?: o) {
+  patchList(@Response res?: AxiosResponse) {
     return res;
   }
 
   @Get('/error/api')
-  fetchError(@Exception err?: Error, @Response res?: unknown) {
+  fetchError(@Exception err?: Error, @Response res?: AxiosResponse) {
     return [err, res];
   }
 
   @Get('/get-with-params')
   @Params({ hello: 'world' })
-  getWithParams(@Params params: o, @Response res?: o) {
+  getWithParams(@Params params: o, @Response res?: AxiosResponse) {
     return res;
   }
 
   @Post('/post-with-params')
   @Params({ hello: 'world' })
-  postWithParams(@Params params: o, @Response res?: o) {
+  postWithParams(@Params params: o, @Response res?: AxiosResponse) {
     return res;
   }
 }
@@ -78,51 +79,50 @@ const request = new Request();
 
 describe('test decorators', () => {
   it('test Get decorator', async () => {
-    const [res, err] = await request.fetchList();
+    const res = await request.fetchList();
     expect(res).toBeDefined();
-    expect(err).toBeUndefined();
-    expect(res?.errcode).toBe(0);
-    expect(res?.data.list).toContain('back end');
+    expect(res?.data?.errcode).toBe(0);
+    expect(res?.data?.data.list).toContain('back end');
   });
 
   it('test Post decorator', async () => {
     const res: o | undefined = await request.postList();
     expect(res).toBeDefined();
-    expect(res?.errcode).toBe(0);
-    expect(res?.data.list).toContain('back end');
+    expect(res?.data?.errcode).toBe(0);
+    expect(res?.data?.data.list).toContain('back end');
   });
 
   it('test Put decorator', async () => {
     const res: o | undefined = await request.putList();
     expect(res).toBeDefined();
-    expect(res?.errcode).toBe(0);
-    expect(res?.data.list).toContain('back end');
+    expect(res?.data?.errcode).toBe(0);
+    expect(res?.data?.data.list).toContain('back end');
   });
 
   it('test Delete decorator', async () => {
     const res: o | undefined = await request.deleteList();
     expect(res).toBeDefined();
-    expect(res?.errcode).toBe(0);
-    expect(res?.data.list).toContain('back end');
+    expect(res?.data?.errcode).toBe(0);
+    expect(res?.data?.data.list).toContain('back end');
   });
 
   it('test custom method decorator', async () => {
     const res: o | undefined = await request.patchList();
     expect(res).toBeDefined();
-    expect(res?.errcode).toBe(0);
-    expect(res?.data.list).toContain('back end');
+    expect(res?.data?.errcode).toBe(0);
+    expect(res?.data?.data.list).toContain('back end');
   });
 
   it('test get api width params', async () => {
     const res: o | undefined = await request.getWithParams({ foo: 'bar' });
-    expect(res?.url).toMatch('foo=bar');
-    expect(res?.url).toMatch('hello=world');
+    expect(res?.data?.url).toMatch('foo=bar');
+    expect(res?.data?.url).toMatch('hello=world');
   });
 
   it('test post api width params', async () => {
     const res: o | undefined = await request.postWithParams({ foo: 'bar' });
-    expect(res?.body).toMatch('"foo":"bar"');
-    expect(res?.body).toMatch('"hello":"world"');
+    expect(res?.data?.body).toMatch('"foo":"bar"');
+    expect(res?.data?.body).toMatch('"hello":"world"');
   });
 
   // passed test
