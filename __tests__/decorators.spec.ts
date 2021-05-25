@@ -10,6 +10,8 @@ import {
   Params,
   createMethodDecorator,
   AxiosResponse,
+  Config,
+  AxiosRequestConfig,
 } from '../lib';
 
 type o = Record<string, any>;
@@ -28,6 +30,7 @@ Mock.mock('https://mock.api.com/delete/list', 'delete', template);
 Mock.mock('https://mock.api.com/patch/list', 'patch', template);
 Mock.mock(RegExp('https://mock.api.com/get-with-params.*'), 'get', (opt: o) => opt);
 Mock.mock(RegExp('https://mock.api.com/post-with-params.*'), 'post', (opt: o) => opt);
+Mock.mock(RegExp('https://mock.api.com/get/config.*'), 'get', (opt: o) => opt);
 
 setRequestConfig({ baseURL: 'https://mock.api.com' });
 
@@ -71,6 +74,16 @@ class Request {
   @Post('/post-with-params')
   @Params({ hello: 'world' })
   postWithParams(@Params params: o, @Response res?: AxiosResponse) {
+    return res;
+  }
+
+  @Get('/get/config')
+  @Config({ params: { foo: 1, bar: 2 } })
+  getConfig(
+    @Params params: o,
+    @Config config: AxiosRequestConfig,
+    @Response res?: AxiosResponse,
+  ) {
     return res;
   }
 }
@@ -123,6 +136,13 @@ describe('test decorators', () => {
     const res: o | undefined = await request.postWithParams({ foo: 'bar' });
     expect(res?.data?.body).toMatch('"foo":"bar"');
     expect(res?.data?.body).toMatch('"hello":"world"');
+  });
+
+  it('test Config decorator', async () => {
+    const res = await request.getConfig({ bar: 666 }, { headers: { foo: 'bar' } });
+    expect(res?.config.params.foo).toBe(1);
+    expect(res?.config.params.bar).toBe(666);
+    expect(res?.config.headers.foo).toBe('bar');
   });
 
   // passed test
