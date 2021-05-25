@@ -8,7 +8,9 @@ import { isNumber, isObject } from './utils';
 import {
   HEADER,
   PARAMS,
+  CONFIG,
   PARAMS_INDEX,
+  CONFIG_INDEX,
   RESPONSE_INDEX,
   ERROR_INDEX,
 } from './MetaSymbols';
@@ -17,12 +19,16 @@ const getMetaData = (target: Object, propertyKey: string | symbol) => {
   const { getOwnMetadata } = Reflect;
   const headers: Record<string, string | number> = getOwnMetadata(HEADER, target, propertyKey);
   const params: Record<string, any> = getOwnMetadata(PARAMS, target, propertyKey);
+  const config: AxiosRequestConfig = getOwnMetadata(CONFIG, target, propertyKey);
   const paramsIndex: number = getOwnMetadata(PARAMS_INDEX, target, propertyKey);
+  const configIndex: number = getOwnMetadata(CONFIG_INDEX, target, propertyKey);
   const responseIndex: number = getOwnMetadata(RESPONSE_INDEX, target, propertyKey);
   const errorIndex: number = getOwnMetadata(ERROR_INDEX, target, propertyKey);
   return {
     headers,
+    config,
     params,
+    configIndex,
     paramsIndex,
     responseIndex,
     errorIndex,
@@ -36,17 +42,24 @@ const useDataField = (method: Method) => (['POST', 'PUT', 'PATCH'].includes(meth
 export function HttpMethodDecoratorFactory(method: Method, url: string) {
   return function (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
     const rawMethod: (...args: unknown[]) => void = descriptor.value;
-    descriptor.value = async function (...args: unknown[]) {
+    descriptor.value = async function (...args: any[]) {
       const {
         headers,
         params = {},
+        config = {},
         paramsIndex,
+        configIndex,
         responseIndex,
         errorIndex,
       } = getMetaData(target, propertyKey);
 
       // 取出默认的请求配置
       const requestConfig: AxiosRequestConfig = getDefaultRequestConfig();
+
+      // 指定配置
+      if (hasValidParamIndex(configIndex)) assignRequestConfig(requestConfig, args[configIndex]);
+      assignRequestConfig(requestConfig, config);
+
       // 请求参数
       const requestParams = {
         ...params,
