@@ -71,7 +71,12 @@ this.fetch({ foo: 'bar' });
 
 ## Docs
 - `Get` <br>
-包装 GET 请求的方法装饰器，只接受请求的 `url`，使用如 `@Get('https://demo.someapi.com/foo/bar')`，设置 `baseUrl` 后 `@Get('/foo/bar')`
+包装 GET 请求的方法装饰器，只接受请求的 `url` 参数，使用如 `@Get('https://demo.someapi.com/foo/bar')`，设置 `baseUrl` 后 `@Get('/foo/bar')`
+```ts
+@Get('/foo/bar') // 设置了 baseUrl
+// 未设置 baseUrl 使用完整链接 @Get('https://xxxx/foo/bar')
+fetch(@Params params: Record<string, any>) {}
+```
 
 - `Post` <br>
 包装 POST 请求的方法装饰器，使用同上
@@ -118,6 +123,18 @@ class MyApp {
     // 最终参数 { foo: 789, bar: 456 }
   }
 }
+```
+
+- `Config` <br>
+请求配置的方法/参数装饰器。作为方法装饰器时，接受唯一参数类型 `AxiosRequestConfig`；作为参数装饰器时，修饰的参数类型 `AxiosRequestConfig`
+```ts
+@Get('/foo/bar')
+@Config({ params: { foo: 1, bar: 2 } })
+fetch(
+  @Params params: o,
+  @Config config: AxiosRequestConfig,
+  @Response res?: AxiosResponse,
+) {}
 ```
 
 - `Response` <br>
