@@ -6,34 +6,8 @@ import {
 } from './RequestConfig';
 import { isNumber, isObject } from './utils';
 import {
-  HEADER,
-  PARAMS,
-  CONFIG,
-  PARAMS_INDEX,
-  CONFIG_INDEX,
-  RESPONSE_INDEX,
-  ERROR_INDEX,
-} from './MetaSymbols';
-
-const getMetaData = (target: Object, propertyKey: string | symbol) => {
-  const { getOwnMetadata } = Reflect;
-  const headers: Record<string, string | number> = getOwnMetadata(HEADER, target, propertyKey);
-  const params: Record<string, any> = getOwnMetadata(PARAMS, target, propertyKey);
-  const config: AxiosRequestConfig = getOwnMetadata(CONFIG, target, propertyKey);
-  const paramsIndex: number = getOwnMetadata(PARAMS_INDEX, target, propertyKey);
-  const configIndex: number = getOwnMetadata(CONFIG_INDEX, target, propertyKey);
-  const responseIndex: number = getOwnMetadata(RESPONSE_INDEX, target, propertyKey);
-  const errorIndex: number = getOwnMetadata(ERROR_INDEX, target, propertyKey);
-  return {
-    headers,
-    config,
-    params,
-    configIndex,
-    paramsIndex,
-    responseIndex,
-    errorIndex,
-  };
-};
+  getAllMetadata,
+} from './metadata';
 
 const hasValidParamIndex = (index: number) => isNumber(index) && index >= 0;
 
@@ -51,7 +25,7 @@ export function HttpMethodDecoratorFactory(method: Method, url: string) {
         configIndex,
         responseIndex,
         errorIndex,
-      } = getMetaData(target, propertyKey);
+      } = getAllMetadata(target, propertyKey);
 
       // 取出默认的请求配置
       const requestConfig: AxiosRequestConfig = getDefaultRequestConfig();
