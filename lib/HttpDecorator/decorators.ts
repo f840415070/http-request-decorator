@@ -1,7 +1,6 @@
-import 'reflect-metadata';
-import { AxiosRequestConfig } from 'axios';
 import { HttpMethodDecoratorFactory } from './DecoratorCore';
-import { metakeyFor } from './metadata';
+import { META } from './metadata';
+import { RequestConfig, LooseObject } from './types';
 
 /**
  * 包装 GET 请求的方法装饰器
@@ -65,9 +64,9 @@ export function Delete(url: string) {
  * >|fetch() {}
  * ```
  */
-export function Header(header: Record<string, string | number>) {
+export function Header(header: LooseObject) {
   return function (target: Object, propertyKey: string | symbol) {
-    Reflect.defineMetadata(metakeyFor('headers'), header, target, propertyKey);
+    Reflect.defineMetadata(META.HEADER, header, target, propertyKey);
   };
 }
 
@@ -85,17 +84,17 @@ export function Header(header: Record<string, string | number>) {
  * >|}
  * ```
  */
-export function Params(params: Record<string, any>): (target: Object, propertyKey: string | symbol) => void
+export function Params(params: LooseObject): (target: Object, propertyKey: string | symbol) => void
 export function Params(target: Object, propertyKey: string | symbol, parameterIndex: number): void
 export function Params(...args: any[]) {
   if (args.length === 1) {
     const [params] = args;
     return function (target: Object, propertyKey: string | symbol) {
-      Reflect.defineMetadata(metakeyFor('params'), params, target, propertyKey);
+      Reflect.defineMetadata(META.PARAMS, params, target, propertyKey);
     };
   } else if (args.length === 3) {
     const [target, propertyKey, parameterIndex] = args;
-    Reflect.defineMetadata(metakeyFor('paramsIndex'), parameterIndex, target, propertyKey);
+    Reflect.defineMetadata(META.PARAMS_INDEX, parameterIndex, target, propertyKey);
   } else {
     throw new Error('@Params Invalid arguments');
   }
@@ -112,7 +111,7 @@ export function Params(...args: any[]) {
  * ```
  */
 export function Response(target: Object, propertyKey: string | symbol, parameterIndex: number) {
-  Reflect.defineMetadata(metakeyFor('responseIndex'), parameterIndex, target, propertyKey);
+  Reflect.defineMetadata(META.RESPONSE_INDEX, parameterIndex, target, propertyKey);
 }
 
 /**
@@ -130,20 +129,20 @@ export function Response(target: Object, propertyKey: string | symbol, parameter
  * ```
  */
 export function Exception(target: Object, propertyKey: string | symbol, parameterIndex: number) {
-  Reflect.defineMetadata(metakeyFor('errorIndex'), parameterIndex, target, propertyKey);
+  Reflect.defineMetadata(META.ERROR_INDEX, parameterIndex, target, propertyKey);
 }
 
-export function Config(config: AxiosRequestConfig): (target: Object, propertyKey: string | symbol) => void
+export function Config(config: RequestConfig): (target: Object, propertyKey: string | symbol) => void
 export function Config(target: Object, propertyKey: string | symbol, parameterIndex: number): void
 export function Config(...args: any[]) {
   if (args.length === 1) {
     const [config] = args;
     return function (target: Object, propertyKey: string | symbol) {
-      Reflect.defineMetadata(metakeyFor('config'), config, target, propertyKey);
+      Reflect.defineMetadata(META.CONFIG, config, target, propertyKey);
     };
   } else if (args.length === 3) {
     const [target, propertyKey, parameterIndex] = args;
-    Reflect.defineMetadata(metakeyFor('configIndex'), parameterIndex, target, propertyKey);
+    Reflect.defineMetadata(META.CONFIG_INDEX, parameterIndex, target, propertyKey);
   } else {
     throw new Error('@Config Invalid arguments');
   }
