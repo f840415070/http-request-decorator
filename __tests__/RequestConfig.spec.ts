@@ -3,14 +3,14 @@ import {
   getDefaultRequestConfig,
   assignRequestConfig,
 } from '../lib/HttpDecorator/RequestConfig';
-import { AxiosRequestConfig } from '../lib';
+import { RequestConfig } from '../lib';
 
 describe('test request config', () => {
   it('can set and get default config', () => {
     const func = function (data: unknown) {
       return data;
     };
-    const defaultConfig: AxiosRequestConfig = {
+    const defaultConfig: RequestConfig = {
       url: '/user',
       method: 'get',
       baseURL: 'https://some-domain.com/api/',
@@ -30,7 +30,7 @@ describe('test request config', () => {
     expect(cloneConfig.transformRequest).toContain(func);
     expect(cloneConfig.headers['X-Requested-With']).toBe('XMLHttpRequest');
 
-    const newConfig: AxiosRequestConfig = {
+    const newConfig: RequestConfig = {
       url: '/user',
       method: 'post',
     };
@@ -44,7 +44,7 @@ describe('test request config', () => {
   });
 
   it('can assign to object', () => {
-    const defaultConfig: AxiosRequestConfig = {
+    const defaultConfig: RequestConfig = {
       url: '/user',
       method: 'get',
       baseURL: 'https://some-domain.com/api/',

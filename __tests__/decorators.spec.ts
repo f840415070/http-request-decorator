@@ -9,9 +9,9 @@ import {
   Exception,
   Params,
   createMethodDecorator,
-  AxiosResponse,
+  HttpResponse,
   Config,
-  AxiosRequestConfig,
+  RequestConfig,
 } from '../lib';
 
 type o = Record<string, any>;
@@ -36,44 +36,44 @@ setRequestConfig({ baseURL: 'https://mock.api.com' });
 
 class Request {
   @Get('/get/list')
-  fetchList(@Response res?: AxiosResponse, @Exception err?: Error) {
+  fetchList(@Response res?: HttpResponse, @Exception err?: Error) {
     return res;
   }
 
   @Post('/post/list')
-  postList(@Response res?: AxiosResponse) {
+  postList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Put('/put/list')
-  putList(@Response res?: AxiosResponse) {
+  putList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Delete('/delete/list')
-  deleteList(@Response res?: AxiosResponse) {
+  deleteList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Patch('/patch/list')
-  patchList(@Response res?: AxiosResponse) {
+  patchList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Get('/error/api')
-  fetchError(@Exception err?: Error, @Response res?: AxiosResponse) {
+  fetchError(@Exception err?: Error, @Response res?: HttpResponse) {
     return [err, res];
   }
 
   @Get('/get-with-params')
   @Params({ hello: 'world' })
-  getWithParams(@Params params: o, @Response res?: AxiosResponse) {
+  getWithParams(@Params params: o, @Response res?: HttpResponse) {
     return res;
   }
 
   @Post('/post-with-params')
   @Params({ hello: 'world' })
-  postWithParams(@Params params: o, @Response res?: AxiosResponse) {
+  postWithParams(@Params params: o, @Response res?: HttpResponse) {
     return res;
   }
 
@@ -81,8 +81,8 @@ class Request {
   @Config({ params: { foo: 1, bar: 2 } })
   getConfig(
     @Params params: o,
-    @Config config: AxiosRequestConfig,
-    @Response res?: AxiosResponse,
+    @Config config: RequestConfig,
+    @Response res?: HttpResponse,
   ) {
     return res;
   }
