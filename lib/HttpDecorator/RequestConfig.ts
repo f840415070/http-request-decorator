@@ -1,7 +1,7 @@
-import { AxiosRequestConfig } from 'axios';
+import { RequestConfig } from './types';
 import { isObject, clone } from './utils';
 
-const defaultConfig: AxiosRequestConfig = {};
+const defaultConfig: RequestConfig = {};
 
 /**
  * 设置默认请求配置
@@ -13,7 +13,7 @@ const defaultConfig: AxiosRequestConfig = {};
  *   headers: { 'X-Requested-With': 'XMLHttpRequest' },
  * });
  */
-export const setRequestConfig = (config: AxiosRequestConfig) => {
+export const setRequestConfig = (config: RequestConfig) => {
   Object.assign(defaultConfig, config);
 };
 
@@ -21,12 +21,13 @@ export const getDefaultRequestConfig = () => {
   return clone(defaultConfig);
 };
 
-export const assignRequestConfig = (target: Record<string, any>, source: Record<string, any>) => {
-  for (const key of Object.keys(source)) {
-    if (isObject(target[key])) {
-      Object.assign(target[key], source[key]);
+export const assignRequestConfig = <T extends RequestConfig>(to: RequestConfig, from: T) => {
+  const configKeys = Object.keys(from) as Array<keyof RequestConfig>;
+  for (const key of configKeys) {
+    if (isObject(to[key])) {
+      Object.assign(to[key], from[key]);
     } else {
-      target[key] = source[key];
+      to[key] = from[key];
     }
   }
 };
