@@ -129,7 +129,7 @@ export function Response(target: Object, propertyKey: string | symbol, parameter
  * ```
  */
 export function Exception(target: Object, propertyKey: string | symbol, parameterIndex: number) {
-  Reflect.defineMetadata(META.ERROR_INDEX, parameterIndex, target, propertyKey);
+  Reflect.defineMetadata(META.EXCEPTION_INDEX, parameterIndex, target, propertyKey);
 }
 
 export function Config(config: RequestConfig): (target: Object, propertyKey: string | symbol) => void

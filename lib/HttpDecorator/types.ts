@@ -6,9 +6,9 @@ import {
 
 export type RequestConfig = AxiosRequestConfig;
 export type HttpMethod = Method;
-export type HttpResponse = AxiosResponse;
+export type HttpResponse<T = any> = AxiosResponse<T>;
 
-export type LooseObject = Record<string | symbol, any>;
+export type LooseObject = Record<string, any>;
 
 export type Metadata = {
   headers: LooseObject,
@@ -17,5 +17,5 @@ export type Metadata = {
   configIndex: number,
   paramsIndex: number,
   responseIndex: number,
-  errorIndex: number,
+  exceptionIndex: number,
 };
