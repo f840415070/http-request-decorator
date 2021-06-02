@@ -5,7 +5,7 @@ import {
   Put,
   Delete,
   Response,
-  setRequestConfig,
+  requestConfig,
   Exception,
   Params,
   createMethodDecorator,
@@ -32,7 +32,7 @@ Mock.mock(RegExp('https://mock.api.com/get-with-params.*'), 'get', (opt: o) => o
 Mock.mock(RegExp('https://mock.api.com/post-with-params.*'), 'post', (opt: o) => opt);
 Mock.mock(RegExp('https://mock.api.com/get/config.*'), 'get', (opt: o) => opt);
 
-setRequestConfig({ baseURL: 'https://mock.api.com' });
+requestConfig.set({ baseURL: 'https://mock.api.com' });
 
 class Request {
   @Get('/get/list')
