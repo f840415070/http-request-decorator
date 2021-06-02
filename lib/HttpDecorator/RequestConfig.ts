@@ -1,27 +1,29 @@
 import { RequestConfig } from './types';
-import { isObject, clone } from './utils';
+import { clone, isObject } from './utils';
 
-const defaultConfig: RequestConfig = {};
+export function createIndependentConf(defaultConfig?: RequestConfig) {
+  const _cacheConfig: RequestConfig = defaultConfig && isObject(defaultConfig) ? clone(defaultConfig) : {};
+  const proxyConfig = new Proxy(_cacheConfig, {
+    set() {
+      return false;
+    },
+    get(target: RequestConfig, p: string | symbol, receiver: any) {
+      return Reflect.get(target, p, receiver);
+    },
+  });
+  return {
+    get(): RequestConfig {
+      return proxyConfig;
+    },
+    set(config: RequestConfig) {
+      Object.assign(_cacheConfig, config);
+    },
+  };
+}
 
-/**
- * 设置默认请求配置
- * @param config AxiosRequestConfig
- * @example
- * setRequestConfig({
- *   method: 'get',
- *   baseURL: 'https://some-domain.com/api/',
- *   headers: { 'X-Requested-With': 'XMLHttpRequest' },
- * });
- */
-export const setRequestConfig = (config: RequestConfig) => {
-  Object.assign(defaultConfig, config);
-};
+export const requestConfig = createIndependentConf();
 
-export const getDefaultRequestConfig = () => {
-  return clone(defaultConfig);
-};
-
-export const assignRequestConfig = <T extends RequestConfig>(to: RequestConfig, from: T) => {
+export function mergeRequestConfig(to: RequestConfig, from: RequestConfig) {
   const configKeys = Object.keys(from) as Array<keyof RequestConfig>;
   for (const key of configKeys) {
     if (isObject(to[key])) {
@@ -30,4 +32,4 @@ export const assignRequestConfig = <T extends RequestConfig>(to: RequestConfig, 
       to[key] = from[key];
     }
   }
-};
+}
