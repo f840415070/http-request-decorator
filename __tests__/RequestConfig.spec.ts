@@ -1,49 +1,45 @@
 import {
-  setRequestConfig,
-  getDefaultRequestConfig,
-  assignRequestConfig,
+  requestConfig,
+  mergeRequestConfig,
 } from '../lib/HttpDecorator/RequestConfig';
+import { clone } from '../lib/HttpDecorator/utils';
 import { RequestConfig } from '../lib';
 
-describe('test request config', () => {
+describe('test set/get config', () => {
   it('can set and get default config', () => {
-    const func = function (data: unknown) {
-      return data;
-    };
     const defaultConfig: RequestConfig = {
       url: '/user',
       method: 'get',
       baseURL: 'https://some-domain.com/api/',
-      transformRequest: [func],
-      transformResponse: [function (data: unknown) {
-        return data;
-      }],
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
         'Accept-Encoding': 'gzip, deflate, br',
       },
     };
-    setRequestConfig(defaultConfig);
-    const cloneConfig = getDefaultRequestConfig();
-
-    expect(cloneConfig).not.toBe(defaultConfig);
-    expect(cloneConfig.transformRequest).toContain(func);
-    expect(cloneConfig.headers['X-Requested-With']).toBe('XMLHttpRequest');
-
-    const newConfig: RequestConfig = {
-      url: '/user',
+    requestConfig.set(defaultConfig);
+    const config = requestConfig.get();
+    expect(config.headers).toBe(defaultConfig.headers);
+    // 测试直接修改配置
+    config.method = 'post';
+    expect(config.method).not.toBe('post');
+    expect(config.method).toBe('get');
+    // 使用 set 方法修改配置
+    requestConfig.set({
       method: 'post',
-    };
-    setRequestConfig(newConfig);
-    const cloneConfigNew = getDefaultRequestConfig();
-
-    expect(cloneConfigNew).not.toBe(cloneConfig);
-    expect(cloneConfigNew.url).toBe(cloneConfig.url);
-    expect(cloneConfigNew.method).not.toBe(cloneConfig.method);
-    expect(cloneConfigNew.transformRequest).toContain(func);
+      headers: {
+        'Accept-Encoding': 'gzip',
+        'Accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+      },
+    });
+    expect(config.method).toBe('post');
+    expect(config.headers).not.toBe(defaultConfig.headers);
+    expect(config.headers['Accept-Encoding']).toBe('gzip');
+    expect(config.headers['Accept-language']).toBeDefined();
+    expect(config.headers['X-Requested-With']).toBeUndefined();
+    expect(config.url).toBe('/user');
   });
 
-  it('can assign to object', () => {
+  it('can merge to config', () => {
     const defaultConfig: RequestConfig = {
       url: '/user',
       method: 'get',
@@ -56,13 +52,13 @@ describe('test request config', () => {
         'Accept-Encoding': 'gzip, deflate, br',
       },
     };
-    setRequestConfig(defaultConfig);
-    const config = getDefaultRequestConfig();
+    requestConfig.set(defaultConfig);
+    const config = clone(requestConfig.get());
     const fn = () => {};
 
     expect(config.params).toBeUndefined();
 
-    assignRequestConfig(config, {
+    mergeRequestConfig(config, {
       method: 'post',
       transformResponse: [fn, fn],
       headers: {
