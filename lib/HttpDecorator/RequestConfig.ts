@@ -5,7 +5,7 @@ export function createIndependentConf(defaultConfig?: RequestConfig) {
   const _cacheConfig: RequestConfig = defaultConfig && isObject(defaultConfig) ? clone(defaultConfig) : {};
   const proxyConfig = new Proxy(_cacheConfig, {
     set() {
-      return false;
+      return true;
     },
     get(target: RequestConfig, p: string | symbol, receiver: any) {
       return Reflect.get(target, p, receiver);
