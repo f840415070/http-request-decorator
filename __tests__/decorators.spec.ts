@@ -36,7 +36,7 @@ requestConfig.set({ baseURL: 'https://mock.api.com' });
 
 class Request {
   @Get('/get/list')
-  fetchList(@Response res?: HttpResponse, @Exception err?: Error) {
+  fetchList(@Response res?: HttpResponse, @Exception e?: unknown) {
     return res;
   }
 
@@ -61,8 +61,8 @@ class Request {
   }
 
   @Get('/error/api')
-  fetchError(@Exception err?: Error, @Response res?: HttpResponse) {
-    return [err, res];
+  fetchError(@Exception e?: unknown, @Response res?: HttpResponse) {
+    return [e, res];
   }
 
   @Get('/get-with-params')
@@ -147,9 +147,9 @@ describe('test decorators', () => {
 
   // passed test
   // it('test Exception decorator', async () => {
-  //   const [err, res] = await request.fetchError();
-  //   console.log(err);
-  //   expect(err instanceof Error).toBeTruthy();
+  //   const [e, res] = await request.fetchError();
+  //   console.log(e);
+  //   expect(e instanceof Error).toBeTruthy();
   //   expect(res).toBeUndefined();
   // });
 });
