@@ -138,5 +138,7 @@ module.exports = {
     'func-names': 'off',
     'no-param-reassign': 'off',
     'no-redeclare': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
   },
 };

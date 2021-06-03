@@ -2,7 +2,7 @@ import Mock from 'mockjs';
 import {
   Get,
   Response,
-  AxiosResponse,
+  HttpResponse,
   interceptors,
 } from '../lib';
 
@@ -10,7 +10,7 @@ Mock.mock('https://mock.api.com/get/list', 'get', {});
 
 class Request {
   @Get('https://mock.api.com/get/list')
-  fetch(@Response res?: AxiosResponse) {
+  fetch(@Response res?: HttpResponse) {
     return res;
   }
 }

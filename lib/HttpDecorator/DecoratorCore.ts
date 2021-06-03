@@ -1,120 +1,87 @@
-import axios, { AxiosRequestConfig, Method } from 'axios';
-import 'reflect-metadata';
+import axios, { AxiosInstance } from 'axios';
+import { mergeRequestConfig } from './RequestConfig';
+import { isNumber, clone } from './utils';
+import { getAllMetadata } from './metadata';
 import {
-  getDefaultRequestConfig,
-  assignRequestConfig,
-} from './RequestConfig';
-import { isNumber, isObject } from './utils';
-import {
-  HEADER,
-  PARAMS,
-  CONFIG,
-  PARAMS_INDEX,
-  CONFIG_INDEX,
-  RESPONSE_INDEX,
-  ERROR_INDEX,
-} from './MetaSymbols';
+  HttpMethod,
+  RequestConfig,
+  Metadata,
+  HttpResponse,
+} from './types';
 
-const getMetaData = (target: Object, propertyKey: string | symbol) => {
-  const { getOwnMetadata } = Reflect;
-  const headers: Record<string, string | number> = getOwnMetadata(HEADER, target, propertyKey);
-  const params: Record<string, any> = getOwnMetadata(PARAMS, target, propertyKey);
-  const config: AxiosRequestConfig = getOwnMetadata(CONFIG, target, propertyKey);
-  const paramsIndex: number = getOwnMetadata(PARAMS_INDEX, target, propertyKey);
-  const configIndex: number = getOwnMetadata(CONFIG_INDEX, target, propertyKey);
-  const responseIndex: number = getOwnMetadata(RESPONSE_INDEX, target, propertyKey);
-  const errorIndex: number = getOwnMetadata(ERROR_INDEX, target, propertyKey);
-  return {
-    headers,
-    config,
-    params,
-    configIndex,
-    paramsIndex,
-    responseIndex,
-    errorIndex,
-  };
+const isValidIndex = (index: number) => isNumber(index) && index >= 0;
+
+const setConfig = (config: RequestConfig, metadata: Metadata, args: any[]) => {
+  if (metadata.config) {
+    mergeRequestConfig(config, metadata.config);
+  }
+  if (isValidIndex(metadata.configIndex)) {
+    mergeRequestConfig(config, args[metadata.configIndex]);
+  }
 };
 
-const hasValidParamIndex = (index: number) => isNumber(index) && index >= 0;
+const setParams = (config: RequestConfig, metadata: Metadata, args: any[], method: HttpMethod) => {
+  const requestParams = {};
+  if (metadata.params) {
+    Object.assign(requestParams, metadata.params);
+  }
+  if (isValidIndex(metadata.paramsIndex)) {
+    Object.assign(requestParams, args[metadata.paramsIndex]);
+  }
+  // 'POST' | 'PUT' | 'PATCH' 请求的参数放在 data 字段，'GET' 等请求放在 params 字段
+  const paramsField = (['POST', 'PUT', 'PATCH'].includes(method)) ? 'data' : 'params';
+  mergeRequestConfig(config, { [paramsField]: requestParams });
+};
 
-const useDataField = (method: Method) => (['POST', 'PUT', 'PATCH'].includes(method));
+const setHeaders = (config: RequestConfig, metadata: Metadata) => {
+  if (metadata.headers) {
+    mergeRequestConfig(config, { headers: metadata.headers });
+  }
+};
 
-export function HttpMethodDecoratorFactory(method: Method, url: string) {
-  return function (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-    const rawMethod: (...args: unknown[]) => void = descriptor.value;
-    descriptor.value = async function (...args: any[]) {
-      const {
-        headers,
-        params = {},
-        config = {},
-        paramsIndex,
-        configIndex,
-        responseIndex,
-        errorIndex,
-      } = getMetaData(target, propertyKey);
+function configFromMetadata(
+  config: RequestConfig,
+  metadata: Metadata,
+  url: string,
+  method: HttpMethod,
+  args: any[],
+): RequestConfig {
+  setConfig(config, metadata, args); // 设置请求配置
+  setParams(config, metadata, args, method); // 设置请求参数
+  setHeaders(config, metadata); // 设置 headers
+  config.url = url;
+  config.method = method;
+  return config;
+}
 
-      // 取出默认的请求配置
-      const requestConfig: AxiosRequestConfig = getDefaultRequestConfig();
+const injectToArguments = <T = any>(args: any[], parameterIndex: number, value: T) => {
+  if (isValidIndex(parameterIndex)) {
+    args[parameterIndex] = value;
+  }
+};
 
-      // 指定配置
-      if (hasValidParamIndex(configIndex)) assignRequestConfig(requestConfig, args[configIndex]);
-      assignRequestConfig(requestConfig, config);
-
-      // 请求参数
-      const requestParams = {
-        ...params,
-        ...(
-          (hasValidParamIndex(paramsIndex) && isObject(args[paramsIndex]))
-            ? args[paramsIndex] as Record<string, any>
-            : {}
-        ),
+export function HttpMethodDecoratorFactory(initConfig: RequestConfig, request: AxiosInstance = axios) {
+  return function httpMethodDecorate(method: HttpMethod, url: string) {
+    return function (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+      const rawMethod: (...args: unknown[]) => void = descriptor.value;
+      descriptor.value = async function (...$args: any[]) {
+        const metadata = getAllMetadata(target, propertyKey);
+        try {
+          const requestConfig = configFromMetadata(clone(initConfig), metadata, url, method, $args);
+          const response = await request(requestConfig);
+          injectToArguments<HttpResponse>($args, metadata.responseIndex, response);
+        } catch (exception: unknown) {
+          injectToArguments<unknown>($args, metadata.exceptionIndex, exception);
+        }
+        return rawMethod.apply(this, $args);
       };
-      // 'POST' | 'PUT' | 'PATCH' 请求的参数放在 data 字段，'GET' 等请求放在 params 字段
-      if (useDataField(method)) {
-        assignRequestConfig(requestConfig, { data: requestParams });
-      } else {
-        assignRequestConfig(requestConfig, { params: requestParams });
-      }
-
-      // 加入 headers ，header 相同会覆盖
-      if (headers) assignRequestConfig(requestConfig, { headers });
-
-      requestConfig.url = url;
-      requestConfig.method = method;
-
-      try {
-        const response = await axios(requestConfig);
-        if (hasValidParamIndex(responseIndex)) {
-          args[responseIndex] = response;
-        }
-      } catch (e: unknown) {
-        // 错误捕获给 @Err 参数
-        if (hasValidParamIndex(errorIndex)) {
-          args[errorIndex] = e;
-        }
-      }
-
-      return rawMethod.apply(this, args);
     };
   };
 }
 
-/**
- * 自定义请求方法装饰器
- * @param method 请求方法 |'get'|'post'|...|
- * @returns 方法装饰器
- * @example
- * ```
- * >|const Patch = createMethodDecorator('PATCH');
- * >|
- * >|@Patch('/foo/bar')
- * >|fetch() {}
- * ```
- */
-export const createMethodDecorator = (method: Method) => {
-  return function (url: string) {
-    return HttpMethodDecoratorFactory(method, url);
-  };
-};
+export function CustomMethodDecorator(initConfig: RequestConfig) {
+  const httpMethodDecorate = HttpMethodDecoratorFactory(initConfig);
+  return (method: HttpMethod) => (url: string) => httpMethodDecorate(method, url);
+}
 
 export const { interceptors } = axios;

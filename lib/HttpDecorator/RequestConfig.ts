@@ -1,32 +1,35 @@
-import { AxiosRequestConfig } from 'axios';
-import { isObject, clone } from './utils';
+import { RequestConfig } from './types';
+import { clone, isObject } from './utils';
 
-const defaultConfig: AxiosRequestConfig = {};
+export function createIndependentConf(defaultConfig?: RequestConfig) {
+  const _cacheConfig: RequestConfig = defaultConfig && isObject(defaultConfig) ? clone(defaultConfig) : {};
+  const proxyConfig = new Proxy(_cacheConfig, {
+    set() {
+      return true;
+    },
+    get(target: RequestConfig, p: string | symbol, receiver: any) {
+      return Reflect.get(target, p, receiver);
+    },
+  });
+  return {
+    get(): RequestConfig {
+      return proxyConfig;
+    },
+    set(config: RequestConfig) {
+      Object.assign(_cacheConfig, config);
+    },
+  };
+}
 
-/**
- * 设置默认请求配置
- * @param config AxiosRequestConfig
- * @example
- * setRequestConfig({
- *   method: 'get',
- *   baseURL: 'https://some-domain.com/api/',
- *   headers: { 'X-Requested-With': 'XMLHttpRequest' },
- * });
- */
-export const setRequestConfig = (config: AxiosRequestConfig) => {
-  Object.assign(defaultConfig, config);
-};
+export const requestConfig = createIndependentConf();
 
-export const getDefaultRequestConfig = () => {
-  return clone(defaultConfig);
-};
-
-export const assignRequestConfig = (target: Record<string, any>, source: Record<string, any>) => {
-  for (const key of Object.keys(source)) {
-    if (isObject(target[key])) {
-      Object.assign(target[key], source[key]);
+export function mergeRequestConfig(to: RequestConfig, from: RequestConfig) {
+  const configKeys = Object.keys(from) as Array<keyof RequestConfig>;
+  for (const key of configKeys) {
+    if (isObject(to[key])) {
+      Object.assign(to[key], from[key]);
     } else {
-      target[key] = source[key];
+      to[key] = from[key];
     }
   }
-};
+}

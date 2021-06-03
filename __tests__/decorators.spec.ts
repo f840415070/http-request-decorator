@@ -5,13 +5,13 @@ import {
   Put,
   Delete,
   Response,
-  setRequestConfig,
+  requestConfig,
   Exception,
   Params,
   createMethodDecorator,
-  AxiosResponse,
+  HttpResponse,
   Config,
-  AxiosRequestConfig,
+  RequestConfig,
 } from '../lib';
 
 type o = Record<string, any>;
@@ -32,48 +32,48 @@ Mock.mock(RegExp('https://mock.api.com/get-with-params.*'), 'get', (opt: o) => o
 Mock.mock(RegExp('https://mock.api.com/post-with-params.*'), 'post', (opt: o) => opt);
 Mock.mock(RegExp('https://mock.api.com/get/config.*'), 'get', (opt: o) => opt);
 
-setRequestConfig({ baseURL: 'https://mock.api.com' });
+requestConfig.set({ baseURL: 'https://mock.api.com' });
 
 class Request {
   @Get('/get/list')
-  fetchList(@Response res?: AxiosResponse, @Exception err?: Error) {
+  fetchList(@Response res?: HttpResponse, @Exception e?: unknown) {
     return res;
   }
 
   @Post('/post/list')
-  postList(@Response res?: AxiosResponse) {
+  postList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Put('/put/list')
-  putList(@Response res?: AxiosResponse) {
+  putList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Delete('/delete/list')
-  deleteList(@Response res?: AxiosResponse) {
+  deleteList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Patch('/patch/list')
-  patchList(@Response res?: AxiosResponse) {
+  patchList(@Response res?: HttpResponse) {
     return res;
   }
 
   @Get('/error/api')
-  fetchError(@Exception err?: Error, @Response res?: AxiosResponse) {
-    return [err, res];
+  fetchError(@Exception e?: unknown, @Response res?: HttpResponse) {
+    return [e, res];
   }
 
   @Get('/get-with-params')
   @Params({ hello: 'world' })
-  getWithParams(@Params params: o, @Response res?: AxiosResponse) {
+  getWithParams(@Params params: o, @Response res?: HttpResponse) {
     return res;
   }
 
   @Post('/post-with-params')
   @Params({ hello: 'world' })
-  postWithParams(@Params params: o, @Response res?: AxiosResponse) {
+  postWithParams(@Params params: o, @Response res?: HttpResponse) {
     return res;
   }
 
@@ -81,8 +81,8 @@ class Request {
   @Config({ params: { foo: 1, bar: 2 } })
   getConfig(
     @Params params: o,
-    @Config config: AxiosRequestConfig,
-    @Response res?: AxiosResponse,
+    @Config config: RequestConfig,
+    @Response res?: HttpResponse,
   ) {
     return res;
   }
@@ -147,9 +147,9 @@ describe('test decorators', () => {
 
   // passed test
   // it('test Exception decorator', async () => {
-  //   const [err, res] = await request.fetchError();
-  //   console.log(err);
-  //   expect(err instanceof Error).toBeTruthy();
+  //   const [e, res] = await request.fetchError();
+  //   console.log(e);
+  //   expect(e instanceof Error).toBeTruthy();
   //   expect(res).toBeUndefined();
   // });
 });
