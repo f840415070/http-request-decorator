@@ -6,6 +6,7 @@ export const isArray = typed('Array');
 export const isObject = typed('Object');
 
 export const clone = <T>(target: T): T => {
+  if (typeof target !== 'object') return target;
   const result = (isArray(target) ? [] : {}) as T;
   for (const key of (Object.keys(target) as Array<keyof T>)) {
     if (isObject(target[key]) || isArray(target[key])) {
